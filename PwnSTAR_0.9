@@ -5,7 +5,7 @@
 # See the README.txt for hints on usage
 
 # --------------------------------------------------------------------------------------------------------------------#
-# v0.91-dev 07/4/2013
+# v0.91-dev 07/5/2013
 #
 # Copyright (C) 2013  Vulpi
 
@@ -254,14 +254,14 @@ setup_fn()
 
 dev_check_fn() # from "quickset" - checks device exists
 {
-ifconfig $dev_check_var &> /dev/null  # &> redirects stdout and stderr; prevents screen clutter
-if [ $? -ne 0 ];then
-	echo -e "$warn\nDevice does NOT exist"
-	sleep 1
-	dev_check="fail"
-else
-	dev_check= # nulled
-fi
+    ifconfig $dev_check_var &> /dev/null  # &> redirects stdout and stderr; prevents screen clutter
+    if [ $? -ne 0 ];then
+        echo -e "$warn\nDevice does NOT exist"
+        sleep 1
+        dev_check="fail"
+    else
+        dev_check= # nulled
+    fi
 }	
 
 interface_fn()
@@ -282,17 +282,17 @@ interface_fn()
                 read ICI
                 dev_check_var=$ICI
                 dev_check_fn
-		if [[ $dev_check == "fail" ]]; then
-		    #ICI= # Nulled
-		    internet=
-		    dev_check=
-		    interface_fn
-		fi
+                if [[ $dev_check == "fail" ]]; then
+                    #ICI= # Nulled
+                    internet=
+                    dev_check=
+                    interface_fn
+                fi
             done
             
             if [[ $ICI = eth\* ]];then  ### glob is not expanded - needs fixing
-		echo -e "$warn\nNot macchanging $ICI. Do it yourself if required" # prevents connection problems from macchanging eth0 in a VM
-		sleep 2
+                echo -e "$warn\nNot macchanging $ICI. Do it yourself if required" # prevents connection problems from macchanging eth0 in a VM
+                sleep 2
             else
                 echo -e "$info\nMacchanging $ICI..."
                 ifconfig $ICI down && macchanger -A $ICI && ifconfig $ICI up
@@ -331,25 +331,25 @@ interface_fn()
 	
     while [[ -z $API ]]; do
         echo -e "$def\nAvailable wireless interfaces:"
-	ifconfig -a | grep wlan | awk '{ print $1"   "$5 }' # displays available interfaces
-	echo -e "$q\nWireless interface to use for AP?"
-	read API
-	dev_check_var=$API
-	dev_check_fn
-	if [[ $dev_check == "fail" ]];then
-	    echo -e "$warn\nStart again"
-	    sleep 1
-	    API= # nulled
-	    ICI=
-	    interface=
-	    dev_check=
-	    interface_fn
-	fi
+        ifconfig -a | grep wlan | awk '{ print $1"   "$5 }' # displays available interfaces
+        echo -e "$q\nWireless interface to use for AP?"
+        read API
+        dev_check_var=$API
+        dev_check_fn
+        if [[ $dev_check == "fail" ]];then
+            echo -e "$warn\nStart again"
+            sleep 1
+            API= # nulled
+            ICI=
+            interface=
+            dev_check=
+            interface_fn
+        fi
     done
     if [[ $API = $ICI ]]; then # can't use same interface for internet and AP
-	echo -e "$warn\n$API is in use, stupid. Try another interface"
-	sleep 2
-	interface_fn
+        echo -e "$warn\n$API is in use, stupid. Try another interface"
+        sleep 2
+        interface_fn
     fi
     echo -e "$info\nStarting monitor mode..." # automatically assigns the mon interface to "monap"
     monap=$(airmon-ng start $API|grep enabled|awk '{ print $5"" }'|cut -c -4)
@@ -657,14 +657,14 @@ ap_start_fn()
 
 dhcp_presets_fn()
 {
-apnet="192.168.0.0" 		    		# DHCP Subnet 
-aprange="192.168.0.100 192.168.0.200" 	# DHCP IP range
+    apnet="192.168.0.0" 		    		# DHCP Subnet 
+    aprange="192.168.0.100 192.168.0.200" 	# DHCP IP range
 }
 
 dhcp_setup_fn()
 {
-clear
-echo -e "$def
+    clear
+    echo -e "$def
 
 Check DHCP Server Parameters:
 
@@ -680,33 +680,33 @@ $def
     C)ontinue
 
 \n"
-read var
-case $var in
+    read var
+    case $var in
+    
+        1) echo -e "\033[36m\nGateway IP Address?"
+        read ap_ip
+        dhcp_setup_fn;;
+    
+        2) echo -e "\033[36m\nSubnet Mask?"
+        read ap_sm
+        dhcp_setup_fn;;
+    
+        3) echo -e "\033[36m\nSubnet?"
+        read apnet
+        dhcp_setup_fn;;
+    
+        4) echo -e "\033[36m\nIP Range?"
+        read aprange	
+        dhcp_setup_fn;;
 
-	1) echo -e "\033[36m\nGateway IP Address?"
-	read ap_ip
-	dhcp_setup_fn;;
-
-	2) echo -e "\033[36m\nSubnet Mask?"
-	read ap_sm
-	dhcp_setup_fn;;
-
-	3) echo -e "\033[36m\nSubnet?"
-	read apnet
-	dhcp_setup_fn;;
-
-	4) echo -e "\033[36m\nIP Range?"
-	read aprange	
-	dhcp_setup_fn;;
-
-	c|C) if [[ -z $ap_ip || -z $ap_sm || -z $apnet || -z $aprange ]];then
-		echo -e "\033[31mGet a grip - you've missed something"
-		sleep 1
-		dhcp_setup_fn
-		fi;;
-
-	*) 	dhcp_setup_fn;;
-esac
+        c|C) if [[ -z $ap_ip || -z $ap_sm || -z $apnet || -z $aprange ]];then
+                echo -e "\033[31mGet a grip - you've missed something"
+                sleep 1
+                dhcp_setup_fn
+            fi;;
+    
+        *) 	dhcp_setup_fn;;
+    esac
 }
 
 dhcp_start_fn()
