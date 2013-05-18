@@ -5,7 +5,7 @@
 # See the README.txt for hints on usage
 
 # --------------------------------------------------------------------------------------------------------------------#
-# v0.9- 07/4/2013
+# v0.91-dev 07/5/2013
 #
 # Copyright (C) 2013  Vulpi
 
@@ -254,14 +254,14 @@ setup_fn()
 
 dev_check_fn() # from "quickset" - checks device exists
 {
-ifconfig $dev_check_var &> /dev/null  # &> redirects stdout and stderr; prevents screen clutter
-if [ $? -ne 0 ];then
-	echo -e "$warn\nDevice does NOT exist"
-	sleep 1
-	dev_check="fail"
-else
-	dev_check= # nulled
-fi
+    ifconfig $dev_check_var &> /dev/null  # &> redirects stdout and stderr; prevents screen clutter
+    if [ $? -ne 0 ];then
+        echo -e "$warn\nDevice does NOT exist"
+        sleep 1
+        dev_check="fail"
+    else
+        dev_check= # nulled
+    fi
 }	
 
 interface_fn()
@@ -282,16 +282,17 @@ interface_fn()
                 read ICI
                 dev_check_var=$ICI
                 dev_check_fn
-                    if [[ $dev_check == "fail" ]]; then
-                        ICI= # Nulled
-                        internet=
-                        interface_fn
-                    fi
+                if [[ $dev_check == "fail" ]]; then
+                    #ICI= # Nulled
+                    internet=
+                    dev_check=
+                    interface_fn
+                fi
             done
             
-            if [[ $ICI = "eth*" ]];then 
-				echo -e "$warn\nNot macchanging $ICI. Do it yourself if required" # prevents connection problems from macchanging eth0 in a VM
-				sleep 2
+            if [[ $ICI = eth\* ]];then  ### glob is not expanded - needs fixing
+                echo -e "$warn\nNot macchanging $ICI. Do it yourself if required" # prevents connection problems from macchanging eth0 in a VM
+                sleep 2
             else
                 echo -e "$info\nMacchanging $ICI..."
                 ifconfig $ICI down && macchanger -A $ICI && ifconfig $ICI up
@@ -314,8 +315,7 @@ interface_fn()
             if [[ $var = n ]];then
                 internet=
                 interface_fn
-            fi
-            if [[ $var = y ]];then
+            elif [[ $var = y ]];then
                 if [[ $apusage = 3 || $apusage = a || $apusage = b || $apusage = c ]];then
                     echo -e "$warn\nDuh, won't work without an internet interface. Start again"
                     sleep 2
@@ -329,70 +329,73 @@ interface_fn()
         fi
     fi
 	
-	while [[ -z $API ]]; do
+    while [[ -z $API ]]; do
         echo -e "$def\nAvailable wireless interfaces:"
-		ifconfig -a | grep wlan | awk '{ print $1"   "$5 }' # displays available interfaces
-		echo -e "$q\nWireless interface to use for AP?"
-		read API
-		dev_check_var=$API
-		dev_check_fn
-			if [[ $dev_check == "fail" ]];then
-                echo -e "$warn\nStart again"
-                sleep 1
-				API= # nulled
-                ICI=
-                interface=
-				interface_fn
-			fi
-		if [[ $API = $ICI ]]; then # can't use same interface for internet and AP
-			echo -e "$warn\n$API is in use, stupid. Try another interface"
-			sleep 2
-			interface_fn
-		fi
-	done
-	
-	echo -e "$info\nStarting monitor mode..." # automatically assigns the mon interface to "monap"
-	monap=$(airmon-ng start $API|grep enabled|awk '{ print $5"" }'|cut -c -4)
-	dev_check_var=$monap
-	dev_check_fn
-	if [[ $dev_check == "fail" ]];then
-		monap= 
-		interface_fn
-	fi
-    
-	echo -e "$info\nBest to macchange $API and $monap..."
-	while [[ -z $rand ]];do
-		echo -e "$q\nRandom MAC? (y). Or manual (m)"
-		read rand
-		case $rand in
-			y|Y);;
+        ifconfig -a | grep wlan | awk '{ print $1"   "$5 }' # displays available interfaces
+        echo -e "$q\nWireless interface to use for AP?"
+        read API
+        dev_check_var=$API
+        dev_check_fn
+        if [[ $dev_check == "fail" ]];then
+            echo -e "$warn\nStart again"
+            sleep 1
+            API= # nulled
+            ICI=
+            interface=
+            dev_check=
+            interface_fn
+        fi
+    done
+    if [[ $API = $ICI ]]; then # can't use same interface for internet and AP
+        echo -e "$warn\n$API is in use, stupid. Try another interface"
+        sleep 2
+        interface_fn
+    fi
+    echo -e "$info\nStarting monitor mode..." # automatically assigns the mon interface to "monap"
+    monap=$(airmon-ng start $API|grep enabled|awk '{ print $5"" }'|cut -c -4)
+    dev_check_var=$monap
+    dev_check_fn
+    if [[ $dev_check == "fail" ]];then
+	    monap= 
+	    interface_fn
+    fi
 
-			m|M) while [ -z $ap_mac ];do
-				echo -e "$q\nDesired MAC Address for $inp $API $q? $warn\nNo error-checking done - must enter VALID MAC"
-				read ap_mac
-				done;;
-            *) echo -e "$warn\nInvalid. Start again."
-                rand=
-                airmon-ng stop $mon_ap &> /dev/null
+    echo -e "$info\nBest to macchange $API and $monap..."
+    while [[ -z $rand ]];do
+	    echo -e "$q\nRandom MAC? (y). Or manual (m)"
+	    read rand
+    done
+    case $rand in
+        y|Y) ifconfig $API down && macchanger -A $API && ifconfig $API up
+             sleep 6     # crucial, to let API come up before setting ap_mac 
+             ap_mac=$(ifconfig $API | awk '{print $5}')  # reads the random mac so it can be assigned to all subsequent interfaces
+             sleep 0.5
+             ap_mac=$(echo $ap_mac | awk '{print $1}')   # thanks to snafu777 quickset
+             sleep 0.5
+             ifconfig $monap down && macchanger -m $ap_mac $monap && ifconfig $monap up;;
+    
+	    m|M) while [ -z $ap_mac ];do
+		    echo -e "$q\nDesired MAC Address for $inp $API $q?"
+		    read ap_mac
+            done
+            if [[ "$ap_mac" =~ ^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$ ]]; then
+                ifconfig $API down && macchanger -m $ap_mac $API && ifconfig $API up
+            else
+                echo -e "Invalid MAC address!"
+                ap_mac=
+                rand=		    
                 sleep 2
-                interface_fn;;
-		esac
-	done
-	
-	echo -e "$info\nChanging MAC Address; $API and $monap...\n"
-	if [[ $rand = y ]];then
-		ifconfig $API down && macchanger -A $API && ifconfig $API up
-        sleep 6     # crucial, to let API come up before setting ap_mac 
-		ap_mac=$(ifconfig $API | awk '{print $5}')  # reads the random mac so it can be assigned to all subsequent interfaces
-        sleep 0.5
-		ap_mac=$(echo $ap_mac | awk '{print $1}')   # thanks to snafu777 quickset
-		sleep 0.5
-		ifconfig $monap down && macchanger -m $ap_mac $monap && ifconfig $monap up
-	else
-		ifconfig $API down && macchanger -m $ap_mac $API && ifconfig $API up
-        sleep 6 ### not necessary?
-		ifconfig $monap down && macchanger -m $ap_mac $monap && ifconfig $monap up
-	fi
+                interface_fn
+            fi
+            sleep 3 ### not necessary?
+            ifconfig $monap down && macchanger -m $ap_mac $monap && ifconfig $monap up;;
+		 
+	    *)  echo -e "$warn\nInvalid. Start again."
+            rand=
+            airmon-ng stop $mon_ap &> /dev/null
+            sleep 2
+            interface_fn;;
+    esac
     sleep 0.5
 }
 
@@ -654,14 +657,14 @@ ap_start_fn()
 
 dhcp_presets_fn()
 {
-apnet="192.168.0.0" 		    		# DHCP Subnet 
-aprange="192.168.0.100 192.168.0.200" 	# DHCP IP range
+    apnet="192.168.0.0" 		    		# DHCP Subnet 
+    aprange="192.168.0.100 192.168.0.200" 	# DHCP IP range
 }
 
 dhcp_setup_fn()
 {
-clear
-echo -e "$def
+    clear
+    echo -e "$def
 
 Check DHCP Server Parameters:
 
@@ -677,33 +680,33 @@ $def
     C)ontinue
 
 \n"
-read var
-case $var in
+    read var
+    case $var in
+    
+        1) echo -e "\033[36m\nGateway IP Address?"
+        read ap_ip
+        dhcp_setup_fn;;
+    
+        2) echo -e "\033[36m\nSubnet Mask?"
+        read ap_sm
+        dhcp_setup_fn;;
+    
+        3) echo -e "\033[36m\nSubnet?"
+        read apnet
+        dhcp_setup_fn;;
+    
+        4) echo -e "\033[36m\nIP Range?"
+        read aprange	
+        dhcp_setup_fn;;
 
-	1) echo -e "\033[36m\nGateway IP Address?"
-	read ap_ip
-	dhcp_setup_fn;;
-
-	2) echo -e "\033[36m\nSubnet Mask?"
-	read ap_sm
-	dhcp_setup_fn;;
-
-	3) echo -e "\033[36m\nSubnet?"
-	read apnet
-	dhcp_setup_fn;;
-
-	4) echo -e "\033[36m\nIP Range?"
-	read aprange	
-	dhcp_setup_fn;;
-
-	c|C) if [[ -z $ap_ip || -z $ap_sm || -z $apnet || -z $aprange ]];then
-		echo -e "\033[31mGet a grip - you've missed something"
-		sleep 1
-		dhcp_setup_fn
-		fi;;
-
-	*) 	dhcp_setup_fn;;
-esac
+        c|C) if [[ -z $ap_ip || -z $ap_sm || -z $apnet || -z $aprange ]];then
+                echo -e "\033[31mGet a grip - you've missed something"
+                sleep 1
+                dhcp_setup_fn
+            fi;;
+    
+        *) 	dhcp_setup_fn;;
+    esac
 }
 
 dhcp_start_fn()
@@ -719,7 +722,7 @@ dhcp_start_fn()
         apdns=$(grep nameserver /etc/resolv.conf | awk '{print $2}' | tr '\n' ',') # replace newlines with commas
         apdns=${apdns//,/", "}                           # add a space after all commas
         apdns=${apdns%", "}                              # delete the final comma/space
-    else apdns=$ap_ip # default in case resolv.conf is empty, which would prevent dhcpd starting
+    else apdns="8.8.8.8" # default in case resolv.conf is empty
     fi
 	
 	echo -e "$info\nGenerating /tmp/dhcpd.conf"
