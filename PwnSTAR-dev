@@ -266,12 +266,14 @@ interface_fn()
     API= # AP interface
     ICI= # Internet-connected interface
     internet=
+    echo "1"###
+    
     if [[ $apusage != [1-2] ]];then
         echo -e "$q\nAre we giving internet access? (y/n)"
         read internet
         
         if [[ $internet = "y" ]]; then
-            while [ -z $ICI ];do
+            if [ -z $ICI ];then
                 echo -e "$def\nAvailable interfaces:"
                 ifconfig -a | grep eth | awk '{ print $1"   "$5 }' 2>/dev/null                
                 ifconfig -a | grep wlan | awk '{ print $1"   "$5 }'
@@ -279,15 +281,15 @@ interface_fn()
                 read ICI
                 dev_check_var=$ICI
                 dev_check_fn
-                if [[ $dev_check == "fail" ]]; then
-                    #ICI= # Nulled
+                if [[ $dev_check = "fail" ]]; then
+                    ICI= # Nulled
                     internet=
                     dev_check=
                     interface_fn
                 fi
-            done
+            fi
             
-            if [[ $ICI = eth\* ]];then  ### glob is not expanded - needs fixing
+            if [[ $ICI = "eth0" ]];then
                 echo -e "$warn\nNot macchanging $ICI. Do it yourself if required" # prevents connection problems from macchanging eth0 in a VM
                 sleep 2
             else
@@ -326,14 +328,14 @@ interface_fn()
         fi
     fi
         
-    while [[ -z $API ]]; do
+    if [[ -z $API ]]; then
         echo -e "$def\nAvailable wireless interfaces:"
         ifconfig -a | grep wlan | awk '{ print $1"   "$5 }' # displays available interfaces
         echo -e "$q\nWireless interface to use for AP?"
         read API
         dev_check_var=$API
         dev_check_fn
-        if [[ $dev_check == "fail" ]];then
+        if [[ $dev_check = "fail" ]];then
             echo -e "$warn\nStart again"
             sleep 1
             API= # nulled
@@ -342,7 +344,7 @@ interface_fn()
             dev_check=
             interface_fn
         fi
-    done
+    fi
     if [[ $API = $ICI ]]; then # can't use same interface for internet and AP
         echo -e "$warn\n$API is in use, stupid. Try another interface"
         sleep 2
@@ -358,10 +360,10 @@ interface_fn()
     fi
 
     echo -e "$info\nBest to macchange $API and $monap..."
-    while [[ -z $rand ]];do
+    if [[ -z $rand ]];then
         echo -e "$q\nRandom MAC? (y). Or manual (m)"
         read rand
-    done
+    fi
     case $rand in
         y|Y) ifconfig $API down && macchanger -A $API && ifconfig $API up
              sleep 6     # crucial, to let API come up before setting ap_mac 
