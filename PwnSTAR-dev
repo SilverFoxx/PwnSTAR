@@ -5,9 +5,9 @@
 # See the README.txt for hints on usage
 
 # --------------------------------------------------------------------------------------------------------------------#
-# v0.91 07/9/2013
+# v0.92_dev 15/4/2014
 #
-# Copyright (C) 2013  VulpiArgenti
+# Copyright (C) 2014  VulpiArgenti
 
 # This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public 
 # License as published by the Free Software Foundation; either version 2 of the License, or any later version.
@@ -54,6 +54,7 @@
 # I amused myself by playing with colours. You may get unexpected results if you have different terminal effects.
 # In Eterm adjust the background settings: transparency off, pixmap none; then "save theme settings". This gives a blank background to show the script colours.
 # In the shell, a plain black or white background works best.
+# The script attempts to set these backgrounds automatically.
 
 # Designed for Kali-linux only. PwnSTAR_0.84 will run on BackTrack 5R2 and 5R3. It is assumed you have all standard tools installed.
 
@@ -100,12 +101,18 @@ info="\e[1;34m"     # info              blue
 q="\e[1;32m"        # questions         green
 inp="\e[1;36m"      # input variables   magenta
 
-var=$(ls /etc | grep kde4)          # detect KDE
-if [[ -z $var ]];then
-    resize -s 38 85 &> /dev/null    # resize the terminal if gnome, not KDE
-fi
+echo "<Eterm-0.9.6>
+# Eterm Configuration File
+begin imageclasses
+    begin image
+      type background
+      mode solid
+      state normal
+    end image
+end" > /usr/share/Eterm/themes/Eterm/user.cfg
 
-# echo -e "\e[0;40m"      # background black
+printf "\e[8;40;85;t"       # resize terminal
+echo -e "\e[0;40m"          # background black
 clear
 
 # ~~~~~~~~~~ Intro ~~~~~~~~~~ #
@@ -740,7 +747,7 @@ dhcp_start_fn()
     dhcpd -cf /tmp/dhcpd.conf &
     route add -net $apnet netmask $ap_sm gw $ap_ip
     iptables -P FORWARD ACCEPT  # probably not necessary 'coz we flushed the chains earlier
-    if [[ apusage = 4 ]];then
+    if [[ $apusage = 4 ]];then
         iptables -t nat -A PREROUTING -i at0 -j REDIRECT        ### ???helps to avoid DNS cache. Still a problem sometimes.
     fi
     sleep 1         # for dhcpd to start
