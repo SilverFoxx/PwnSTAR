@@ -1,22 +1,26 @@
 #!/bin/bash
 
+# Version: 20140428
+
+# Copyright (C) 2014  VulpiArgenti
+
 warn="\e[1;31m"      # warning           red
 info="\e[1;34m"      # info              blue
 q="\e[1;32m"         # questions         green
-inp="\e[1;36m"       # input variables   magenta
 
 echo -e "$info\n      PwnSTAR INSTALLER"
-echo -e "$info\n      =================\n"
-echo -e "$warn\nRun this installer from the same directory as the git clone\n"
+echo -e "$info      =================\n"
+echo -e "$warn\nImportant: run this installer from the same directory as the git clone\n"
+sleep 1
 echo -e "$q\nWhere are we installing PwnSTAR? e.g. /opt"
 read var
-if [[ ! $var =~ ^/ ]];then  # if "/" is ommitted eg "opt"
+if [[ ! $var =~ ^/ ]];then  # if "/" is omitted eg "opt"
     var="/""$var"           # then add it
 fi
 if [[ ! -d $var/PwnSTAR/ ]];then
     mkdir $var/PwnSTAR/
 fi
-chmod 744 PwnSTAR && cp -bi --preserve PwnSTAR $var/PwnSTAR/
+chmod 744 pwnstar && cp -bi --preserve pwnstar $var/PwnSTAR/
 cp How_to_use.txt $var/PwnSTAR/
 if [[ -x $var/PwnSTAR ]];then
     echo -e "$info\nPwnSTAR installed to $var\n"
@@ -31,7 +35,7 @@ if [[ ! -x /usr/sbin/dhcpd ]];then
         apt-get install isc-dhcp-server
     fi
 else
-  echo -e "$info\nIsc-dhcp-server already present"
+    echo -e "$info\nIsc-dhcp-server already present"
 fi
 
 if [[ ! -e /usr/sbin/incrond ]];then 
@@ -57,6 +61,8 @@ for folder in $(find $PWD -maxdepth 1 -mindepth 1 -type d); do
     fi
 done
 
-echo -e "$info\nFinished. If there were no error messages, you can safely delete the git clone"
+echo -e "$info\nFinished. If there were no error messages, you can safely delete the git clone.
+
+Run by typing \"pwnstar\" (presuming your installation directory is on the path)."
 
 exit 0
