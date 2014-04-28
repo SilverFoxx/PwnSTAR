@@ -5,7 +5,7 @@
 # See the README.txt for hints on usage
 
 # --------------------------------------------------------------------------------------------------------------------#
-# v0.92_dev 19/4/2014
+# Version: 20140428
 #
 # Copyright (C) 2014  VulpiArgenti
 
@@ -1116,8 +1116,8 @@ adv_usage_fn()
             else
                 adv_usage_fn
             fi
-                fi
         fi
+    fi
     service apache2 stop &> /dev/null
     setup_fn
 }
