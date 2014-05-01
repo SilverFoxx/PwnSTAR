@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 20140428
+# Version: 20140501
 
 # Copyright (C) 2014  VulpiArgenti
 
@@ -49,20 +49,20 @@ else
 fi
 
 echo -e "$info\nSetting web page permissions"
-cd /html
+cd html/
 for folder in $(find $PWD -maxdepth 1 -mindepth 1 -type d); do
     chgrp -R www-data $folder
     chmod -f 774 $folder/*.php
     chmod -f 664 $folder/formdata.txt
     cp -Rb --preserve $folder /var/www/
     if [[ $? == 0 ]];then
-        echo -e "$info\n$folder moved successfully"
+        echo -e "$info\n$folder moved successfully..."
     else
         echo -e "$warn\nError moving $folder!\nPlease check manually"
     fi
 done
 
-echo -e "$info\nFinished. If there were no error messages, you can safely delete the git clone.
+echo -e "$info\nFinished. \nIf there were no error messages, you can safely delete the git clone.
 
 Run by typing \"pwnstar\" (presuming your installation directory is on the path).
 
