@@ -12,7 +12,7 @@ echo -e "$info\n      PwnSTAR INSTALLER"
 echo -e "$info      =================\n"
 echo -e "$warn\nImportant: run this installer from the same directory as the git clone\n"
 sleep 1
-echo -e "$q\nWhere are we installing PwnSTAR? e.g. /opt"
+echo -e "$q\nWhere are we installing PwnSTAR? e.g. /usr/bin"
 read var
 if [[ ! $var =~ ^/ ]];then  # if "/" is omitted eg "opt"
     var="/""$var"           # then add it
@@ -20,9 +20,9 @@ fi
 if [[ ! -d $var/PwnSTAR/ ]];then
     mkdir $var/PwnSTAR/
 fi
-chmod 744 pwnstar && cp -bi --preserve pwnstar $var/PwnSTAR/
+chmod 744 pwnstar && cp -bi --preserve pwnstar $var/
 cp How_to_use.txt $var/PwnSTAR/
-if [[ -x $var/PwnSTAR ]];then
+if [[ -x $var/pwnstar ]];then
     echo -e "$info\nPwnSTAR installed to $var\n"
 else
     echo-e "$warn\nFailed to install PwnSTAR!\n"
@@ -49,7 +49,8 @@ else
 fi
 
 echo -e "$info\nSetting web page permissions"
-for folder in $(find $PWD -maxdepth 1 -mindepth 1 -type d); do 
+cd /html
+for folder in $(find $PWD -maxdepth 1 -mindepth 1 -type d); do
     chgrp -R www-data $folder
     chmod -f 774 $folder/*.php
     chmod -f 664 $folder/formdata.txt
@@ -63,6 +64,8 @@ done
 
 echo -e "$info\nFinished. If there were no error messages, you can safely delete the git clone.
 
-Run by typing \"pwnstar\" (presuming your installation directory is on the path)."
+Run by typing \"pwnstar\" (presuming your installation directory is on the path).
 
+The README is in $var/PwnSTAR/\n"
+sleep 1
 exit 0
