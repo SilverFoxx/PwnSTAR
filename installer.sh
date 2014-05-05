@@ -11,8 +11,8 @@ q="\e[1;32m"         # questions         green
 echo -e "$info\n      PwnSTAR INSTALLER"
 echo -e "$info      =================\n"
 if [[ "$(id -u)" != "0" ]]; then
-	echo -e "$warn\nThis script must be run as root" 1>&2
-	exit 0
+    echo -e "$warn\nThis script must be run as root" 1>&2
+exit 0
 fi
 echo -e "$warn\nImportant: run this installer from the same directory as the git clone eg /git/PwnSTAR\n"
 sleep 1
@@ -32,14 +32,28 @@ else
     echo -e "$warn\nFailed to install PwnSTAR!\n"
 fi
 
+echo -e "$info\nSetting web page permissions"
+cd html/
+for folder in $(find $PWD -maxdepth 1 -mindepth 1 -type d); do
+    chgrp -R www-data $folder
+    chmod -f 774 $folder/*.php
+    chmod -f 664 $folder/formdata.txt
+    cp -Rb --preserve $folder /var/www/
+    if [[ $? == 0 ]];then
+        echo -e "$info\n$folder moved successfully..."
+    else
+        echo -e "$warn\nError moving $folder!\nPlease check manually"
+    fi
+done
+
 progs="Eterm macchanger aircrack-ng ferret sslstrip apache2 dsniff"
 for i in $progs; do
 	echo -e "$info"
 	if [[ ! -x /usr/bin/"$i" ]] && [[ ! -x /usr/sbin/"$i" ]] && [[ ! -x /usr/share/"$i" ]];then
-		i="$(tr [A-Z] [a-z] <<< "$i")" #to deal with Eterm/eterm
-		apt-get install "$i"
+	    i="$(tr [A-Z] [a-z] <<< "$i")" # to deal with Eterm/eterm
+	    apt-get install "$i"
 	else
-		echo -e "$info\n$i already present"
+	    echo -e "$info\n$i already present"
 	fi
 done
 
@@ -64,39 +78,23 @@ else
 fi
 
 if [[ ! -x  /usr/bin/mdk3 ]] && [[ ! -x /usr/sbin/mdk3 ]] && [[ ! -x  /usr/share/mdk3 ]];then
-	echo -e "$info\nInstalling MDK3 to usr/bin"
-	wget http://homepages.tu-darmstadt.de/~p_larbig/wlan/mdk3-v6.tar.bz2
-	tar -xvjf mdk3-v6.tar.bz2
-	cd mdk3-v6
-	
-	sed -i 's|-Wall|-w|g' ./Makefile
-sed -i 's|-Wextra||g' ./Makefile
-sed -i 's|-Wall||g' ./osdep/common.mak
-sed -i 's|-Wextra||g' ./osdep/common.mak
-sed -i 's|-Werror|-w|g' ./osdep/common.mak
-sed -i 's|-W||g' ./osdep/common.mak
-
-	make
-	chmod +x mdk3
-	cp -Rb --preserve mdk3 /usr/bin
-	cd ..
+    echo -e "$info\nInstalling MDK3 to usr/bin"
+    wget http://homepages.tu-darmstadt.de/~p_larbig/wlan/mdk3-v6.tar.bz2
+    tar -xvjf mdk3-v6.tar.bz2
+    cd mdk3-v6
+    sed -i 's|-Wall|-w|g' ./Makefile
+    sed -i 's|-Wextra||g' ./Makefile
+    sed -i 's|-Wall||g' ./osdep/common.mak
+    sed -i 's|-Wextra||g' ./osdep/common.mak
+    sed -i 's|-Werror|-w|g' ./osdep/common.mak
+    sed -i 's|-W||g' ./osdep/common.mak
+    make
+    chmod +x mdk3
+    cp -Rb --preserve mdk3 /usr/bin
+    cd ..
 else
     echo -e "$info\nMDK3 already present\n"
 fi
-
-echo -e "$info\nSetting web page permissions"
-cd html/
-for folder in $(find $PWD -maxdepth 1 -mindepth 1 -type d); do
-    chgrp -R www-data $folder
-    chmod -f 774 $folder/*.php
-    chmod -f 664 $folder/formdata.txt
-    cp -Rb --preserve $folder /var/www/
-    if [[ $? == 0 ]];then
-        echo -e "$info\n$folder moved successfully..."
-    else
-        echo -e "$warn\nError moving $folder!\nPlease check manually"
-    fi
-done
 
 echo -e "$info\nFinished. \nIf there were no error messages, you can safely delete the git clone.
 
