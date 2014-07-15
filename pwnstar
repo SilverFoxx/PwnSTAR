@@ -884,7 +884,7 @@ tail_txtfile_fn()
         ls /var/www/$wwwdir
         echo -e "$q\nEnter name of txtfile \n(usually formdata.txt)"
         read txtfile
-        var="$(ls /var/www/$wwwdir|grep "$txtfile")" # tests whether $txtfile is valid 
+        var="$(ls /var/www/$wwwdir|grep "^$txtfile$")" # tests whether $txtfile is valid 
         if [[ $var == "$txtfile" ]];then
             Eterm -g 80x4-0+493 --pointer-color "dark orange" -f DarkOrchid4 -b LightYellow1 -r --font-fx none --buttonbar 0  --scrollbar 0 -q -T "Textfile Tail" -e tail -f /var/www/"$wwwdir"/"$txtfile" 2> /dev/null &
         else 
