@@ -631,7 +631,7 @@ ap_start_fn()
 
     # blackhole targets every probe request
     if [ $BB == "1" ]; then
-            Eterm -g 80x12-0+0 --pointer-color "dark orange" -f DarkOrchid4 -b LightYellow1 --font-fx none --buttonbar 0  --scrollbar 0 -q -T "Blackhole AP" -e airbase-ng $Z -c $apchan -P -C 60 -v $monap 2> /dev/null 2> /dev/null &
+            Eterm -g 80x12-0+0 --pointer-color "dark orange" -f DarkOrchid4 -b LightYellow1 --font-fx none --buttonbar 0  --scrollbar 0 -q -T "Blackhole AP" -e airbase-ng $Z -a $ap_mac -c $apchan -P -C 60 -v $monap 2> /dev/null 2> /dev/null &
             clear
             
     # bullzeye broadcasts specified ESSID only
@@ -640,7 +640,7 @@ ap_start_fn()
                     echo -e "$q\nDesired ESSID?"
                     read SSID
             done
-            Eterm -g 80x12-0+0 --pointer-color "dark orange" -f DarkOrchid4 -b LightYellow1 --font-fx none --buttonbar 0  --scrollbar 0 -q -T "Bullzeye AP $SSID" -e airbase-ng $Z -c $apchan -e "$SSID" -v $monap 2> /dev/null &
+            Eterm -g 80x12-0+0 --pointer-color "dark orange" -f DarkOrchid4 -b LightYellow1 --font-fx none --buttonbar 0  --scrollbar 0 -q -T "Bullzeye AP $SSID" -e airbase-ng $Z -a $ap_mac -c $apchan -e "$SSID" -v $monap 2> /dev/null &
             clear
             
     # both
