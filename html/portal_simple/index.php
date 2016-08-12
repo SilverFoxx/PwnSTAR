@@ -16,7 +16,7 @@ To access the Internet you must first enter your details:<br><br>
 <form method='POST'>
 <table border=0 cellpadding=5 cellspacing=0>
   <tr><td>Email address:</td><td><input type='text' name='email'></td></tr>
-  <tr><td>Password:</td><td><input type='text' name='password'></td></tr>
+  <tr><td>Password:</td><td><input type='password' name='password'></td></tr>
   <tr><td></td><td><input type='submit' name='submit' value='Submit'></td></tr>
 </table>
 </form>
