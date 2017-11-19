@@ -359,7 +359,8 @@ interface_fn()
         interface_fn
     fi
     echo -e "$info\nStarting monitor mode..." # automatically assigns the mon interface to "monap"
-    monap=$(airmon-ng start $API|grep enabled|awk '{ print $5"" }'|cut -c -4)
+    monap=$(airmon-ng start $API|grep enabled|awk '{ print $9"" }'|cut -c 7-14)
+    echo -e $monap
     dev_check_var=$monap
     dev_check_fn
     if [[ $dev_check == "fail" ]];then
@@ -436,7 +437,7 @@ monscan_start_fn()
 {
     if [[ -z $monscan ]];then # check hasn't been started in a previous loop through the script
         echo -e "$info\nStarting new monitor interface for scanning..."
-        monscan=$(airmon-ng start $API|grep enabled|awk '{ print $5"" }'|cut -c -4)
+        monscan=$(airmon-ng start $API|grep enabled|awk '{ print $9"" }'|cut -c 7-14)
         dev_check_var=$monscan
         dev_check_fn
         if [[ $dev_check == "fail" ]]; then
@@ -722,11 +723,11 @@ dhcp_start_fn()
     cat /dev/null > /tmp/dhcpd.conf
 
     # need a working nameserver from our internet connection
-    var=$(grep "nameserver" /etc/resolv.conf | awk '{print $2}' |wc -l) # count the number of nameservers in resolv.conf
+    var=$(grep "nameserver" /etc/resolv.conf| grep-v : | awk '{print $2}' |wc -l) # count the number of nameservers in resolv.conf
     if [[ $var = 1 ]];then  # if 1, use it in dhcpd.conf
-        apdns=$(grep nameserver /etc/resolv.conf | awk '{print $2}')
+        apdns=$(grep nameserver /etc/resolv.conf |grep -v : | awk '{print $2}')
     elif [[ $var > 1 ]];then  # if more than 1 nameserver, manipulate string into an acceptable form for dhcpd.conf
-        apdns=$(grep nameserver /etc/resolv.conf | awk '{print $2}' | tr '\n' ',')      # replace newlines with commas
+        apdns=$(grep nameserver /etc/resolv.conf | grep -v : |awk '{print $2}' | tr '\n' ',')      # replace newlines with commas
         apdns=${apdns//,/", "}                                                          # add a space after all commas
         apdns=${apdns%", "}                                                             # delete the final comma/space
     else apdns="8.8.8.8"        # default in case resolv.conf is empty
@@ -1503,7 +1504,7 @@ mondeauth_start_fn()
 {
     if [[ -z $mondeauth ]];then
         echo -e "$info\nStarting new monitor interface for deauth..."    # new mon interface to avoid changing AP channel
-        mondeauth=$(airmon-ng start $API|grep enabled|awk '{ print $5"" }'|cut -c -4)
+        mondeauth=$(airmon-ng start $API|grep enabled|awk '{ print $9"" }'|cut -c 7-14)
         sleep 2
         dev_check_var=$mondeauth
         dev_check_fn
